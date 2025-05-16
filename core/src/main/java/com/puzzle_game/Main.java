@@ -2,9 +2,11 @@ package com.puzzle_game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -13,16 +15,25 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 public class Main extends ApplicationAdapter {
 
     private SpriteBatch batch;
-    private Texture image;
+
+    private Texture backgroundTexture;
+    Texture characterTexture; // TODO: fix the background of the character
+
+    Sprite playerSprite;
 
     FitViewport viewport;
 
     @Override
     public void create() {
-        batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
 
-        viewport = new FitViewport(8, 5);
+        batch = new SpriteBatch();
+        backgroundTexture = new Texture("background.png");
+        characterTexture = new Texture("Whiteboxguy.png");
+
+        playerSprite = new Sprite(characterTexture);
+        playerSprite.setSize(1, 1);
+
+        viewport = new FitViewport(16, 10);
     }
 
     @Override
@@ -37,8 +48,16 @@ public class Main extends ApplicationAdapter {
         draw();
     }
 
-    private void input() {
+    private void input() { // get keyboard inputs
 
+        float speed = 2.0f;
+        float delta = Gdx.graphics.getDeltaTime();
+
+        if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
+            playerSprite.translateX(speed * delta);
+        } else if(Gdx.input.isKeyPressed(Keys.LEFT)) {
+            playerSprite.translateX(-speed * delta);
+        }
     }
 
     private void logic() {
@@ -50,11 +69,16 @@ public class Main extends ApplicationAdapter {
         ScreenUtils.clear(Color.BLACK);
         
         viewport.apply();
+
         batch.setProjectionMatrix(viewport.getCamera().combined);
+
+        float worldWidth = viewport.getWorldWidth();
+        float worldHeight = viewport.getWorldHeight();
 
         batch.begin();
         
-        // batch.draw();
+        batch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
+        playerSprite.draw(batch);
 
         batch.end();
 
@@ -63,6 +87,6 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
-        image.dispose();
+        backgroundTexture.dispose();
     }
 }
