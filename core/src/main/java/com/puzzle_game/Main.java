@@ -37,7 +37,7 @@ public class Main extends ApplicationAdapter {
     private int time = 0;
     private int nextTime = 0;
     private double temptime = 0;
-    private int up;
+    private int up = 0;
 
     Sprite playerSprite;
     Body player;
@@ -97,10 +97,12 @@ public class Main extends ApplicationAdapter {
             System.out.println(playerSprite.getX());
 
         } if(Gdx.input.isKeyJustPressed(Keys.UP)) {
-            playerSprite.translateY(10);
-            up = 5;
-            temptime = millitime;
+            if(up == 0 || up == 1) { // Allows for double jump
+                playerSprite.translateY(0.2f);
+                up++;
+                temptime = millitime;
             }
+        }
 
     }
 
@@ -111,12 +113,10 @@ public class Main extends ApplicationAdapter {
         
         debugRenderer.render(world, camera.combined);
         world.step(1/60f, 6, 2);
-        
-        float gravity = 0.1f;
 
         float xPos = playerSprite.getX();
         float yPos = playerSprite.getY();
-        millitime += 0.05; //Increment speed of game
+        millitime += 0.02; //Increment speed of game
 
         // Function occurs every second when millitime is 0.02
         if((int)millitime % 2 == 0 && (int)millitime != nextTime)
@@ -131,12 +131,23 @@ public class Main extends ApplicationAdapter {
 
         } else if(xPos < -VIEWPORT_WIDTH/2 - playerSprite.getWidth()) {
             playerSprite.setPosition(VIEWPORT_WIDTH/2, yPos);
-        } if(yPos > -VIEWPORT_HEIGHT/2) {
-            playerSprite.translateY(-gravity * (float)(millitime - temptime));
-        } if(up > 0) {
-            playerSprite.translateY(1);
         }
+        
+        gravity(-VIEWPORT_HEIGHT/2);
+    }
 
+    private void gravity(float bound) {
+
+        float gravity = 0.5f;
+
+        if(up > 0) {
+            playerSprite.translateY(0.3f); // upwards velocity value
+        } if(playerSprite.getY() > bound) {
+            playerSprite.translateY(-gravity * (float)(millitime - temptime));
+        } else {
+            playerSprite.setY(bound);
+            up = 0;
+        }
     }
 
     private void draw() {
@@ -148,6 +159,8 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         
         batch.draw(backgroundTexture, -VIEWPORT_WIDTH/2, -VIEWPORT_HEIGHT/2, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+        
+        
         playerSprite.draw(batch);
 
         batch.end();
