@@ -9,6 +9,12 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
@@ -18,8 +24,11 @@ public class Main extends ApplicationAdapter {
 
     private OrthographicCamera camera;
 
+    private World world;
+    private Box2DDebugRenderer debugRenderer;
+
     private Texture backgroundTexture;
-    private Texture characterTexture; // TODO: fix the background of the character
+    private Texture characterTexture; // TODO fix background
 
     private float VIEWPORT_WIDTH = 100f;
     private float VIEWPORT_HEIGHT = 100f;
@@ -27,10 +36,11 @@ public class Main extends ApplicationAdapter {
     private double millitime = 0.0;
     private int time = 0;
     private int nextTime = 0;
+    private double temptime = 0;
+    private int up;
 
     Sprite playerSprite;
-
-    FitViewport viewport;
+    Body player;
 
     @Override
     public void create() {
@@ -42,21 +52,27 @@ public class Main extends ApplicationAdapter {
         camera.position.set(0, 0, 0);
         camera.update();
 
+        world = new World(new Vector2(0, -10), true);
+        debugRenderer = new Box2DDebugRenderer();
+
         batch = new SpriteBatch();
         backgroundTexture = new Texture("background.png");
         characterTexture = new Texture("Whiteboxguy.png");
 
         playerSprite = new Sprite(characterTexture);
-        playerSprite.setSize(1, 1);
+        playerSprite.setSize(5, 5);
 
-        viewport = new FitViewport(16, 10);
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyType.DynamicBody;
+        bodyDef.position.set(0, 0);
+        player = world.createBody(bodyDef);
+        player.setUserData(playerSprite);
     }
 
     @Override
     public void resize(int width, int height) {
-        viewport.update(width, height, true);
         camera.viewportWidth = VIEWPORT_WIDTH;
-        camera.viewportHeight = VIEWPORT_HEIGHT * height / width;
+        camera.viewportHeight = VIEWPORT_HEIGHT;
         camera.update();
     }
 
@@ -69,9 +85,8 @@ public class Main extends ApplicationAdapter {
 
     private void input() { // get keyboard inputs
 
-        float speed = 3.0f;
+        float speed = 10.0f;
         float delta = Gdx.graphics.getDeltaTime();
-        double temptime = time;
 
         if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
             playerSprite.translateX(speed * delta);
@@ -82,7 +97,9 @@ public class Main extends ApplicationAdapter {
             System.out.println(playerSprite.getX());
 
         } if(Gdx.input.isKeyJustPressed(Keys.UP)) {
-            playerSprite.translateY(delta);
+            playerSprite.translateY(10);
+            up = 5;
+            temptime = millitime;
             }
 
     }
@@ -92,9 +109,16 @@ public class Main extends ApplicationAdapter {
      */
     private void logic() { 
         
+        debugRenderer.render(world, camera.combined);
+        world.step(1/60f, 6, 2);
+        
+        float gravity = 0.1f;
+
         float xPos = playerSprite.getX();
         float yPos = playerSprite.getY();
-        millitime += 0.02;
+        millitime += 0.05; //Increment speed of game
+
+        // Function occurs every second when millitime is 0.02
         if((int)millitime % 2 == 0 && (int)millitime != nextTime)
         {
             nextTime = (int) millitime;
@@ -102,12 +126,15 @@ public class Main extends ApplicationAdapter {
             System.out.println(time);
         }
         
-        if(xPos > 16) {
-            playerSprite.setPosition(0, yPos);
-            playerSprite.translateX(-1);
+        if(xPos > VIEWPORT_WIDTH/2) {
+            playerSprite.setPosition(-VIEWPORT_WIDTH/2 - playerSprite.getWidth(), yPos);
 
-        } else if(xPos < -1) {
-            playerSprite.setPosition(viewport.getWorldWidth(), yPos);
+        } else if(xPos < -VIEWPORT_WIDTH/2 - playerSprite.getWidth()) {
+            playerSprite.setPosition(VIEWPORT_WIDTH/2, yPos);
+        } if(yPos > -VIEWPORT_HEIGHT/2) {
+            playerSprite.translateY(-gravity * (float)(millitime - temptime));
+        } if(up > 0) {
+            playerSprite.translateY(1);
         }
 
     }
@@ -115,17 +142,12 @@ public class Main extends ApplicationAdapter {
     private void draw() {
 
         ScreenUtils.clear(Color.BLACK);
-        
-        viewport.apply();
 
-        batch.setProjectionMatrix(viewport.getCamera().combined);
-
-        float worldWidth = viewport.getWorldWidth();
-        float worldHeight = viewport.getWorldHeight();
+        batch.setProjectionMatrix(camera.combined);
 
         batch.begin();
         
-        batch.draw(backgroundTexture, 0, 0, worldWidth, worldHeight);
+        batch.draw(backgroundTexture, -VIEWPORT_WIDTH/2, -VIEWPORT_HEIGHT/2, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
         playerSprite.draw(batch);
 
         batch.end();
