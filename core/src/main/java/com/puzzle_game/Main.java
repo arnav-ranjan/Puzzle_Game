@@ -1,5 +1,7 @@
 package com.puzzle_game;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -24,11 +26,10 @@ public class Main extends ApplicationAdapter {
 
     private OrthographicCamera camera;
 
-    private World world;
-    private Box2DDebugRenderer debugRenderer;
-
     private Texture backgroundTexture;
     private Texture characterTexture; // TODO fix background
+    private Texture platformTexture;
+    private ArrayList<Sprite> platforms1 = new ArrayList<>();
 
     private float VIEWPORT_WIDTH = 100f;
     private float VIEWPORT_HEIGHT = 100f;
@@ -38,9 +39,9 @@ public class Main extends ApplicationAdapter {
     private int nextTime = 0;
     private double temptime = 0;
     private int up = 0;
+    private int stage = 1;
 
     Sprite playerSprite;
-    Body player;
 
     @Override
     public void create() {
@@ -52,21 +53,21 @@ public class Main extends ApplicationAdapter {
         camera.position.set(0, 0, 0);
         camera.update();
 
-        world = new World(new Vector2(0, -10), true);
-        debugRenderer = new Box2DDebugRenderer();
+        int[] stage1Plats = {-47, -45, 10, 3, -50, -50, 100, 1};
 
         batch = new SpriteBatch();
         backgroundTexture = new Texture("background.png");
         characterTexture = new Texture("Whiteboxguy.png");
+        platformTexture = new Texture("testplats.png");
+
+        for (int i = 0; i < stage1Plats.length; i += 4) {
+            Sprite platSprite = new Sprite(platformTexture);
+            platSprite.setBounds(stage1Plats[i], stage1Plats[i + 1], stage1Plats[i + 2], stage1Plats[i + 3]);
+            platforms1.add(platSprite);
+        }
 
         playerSprite = new Sprite(characterTexture);
         playerSprite.setSize(5, 5);
-
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyType.DynamicBody;
-        bodyDef.position.set(0, 0);
-        player = world.createBody(bodyDef);
-        player.setUserData(playerSprite);
     }
 
     @Override
@@ -110,9 +111,6 @@ public class Main extends ApplicationAdapter {
      * Wraps the sprite around the screen so that it reappears on the screen no matter how far it travels
      */
     private void logic() { 
-        
-        debugRenderer.render(world, camera.combined);
-        world.step(1/60f, 6, 2);
 
         float xPos = playerSprite.getX();
         float yPos = playerSprite.getY();
@@ -133,20 +131,33 @@ public class Main extends ApplicationAdapter {
             playerSprite.setPosition(VIEWPORT_WIDTH/2, yPos);
         }
         
-        gravity(-VIEWPORT_HEIGHT/2);
+        boolean isinAir = true;
+        for (Sprite s : platforms1) {
+            if(yPos >= s.getY() + s.getHeight() && xPos > s.getX() - 5 && xPos < s.getX() + s.getWidth() && isinAir) {
+                gravity(s.getY() + s.getHeight());
+                isinAir = false;
+            }
+        }
     }
 
     private void gravity(float bound) {
 
         float gravity = 0.5f;
+        float timeIncrement = (float)(millitime - temptime);
 
         if(up > 0) {
             playerSprite.translateY(0.3f); // upwards velocity value
-        } if(playerSprite.getY() > bound) {
-            playerSprite.translateY(-gravity * (float)(millitime - temptime));
+        } if(playerSprite.getY() - (gravity * timeIncrement) < bound) {
+            playerSprite.setY(bound);
+            up = 0;
+            temptime = millitime;
+        } else if(playerSprite.getY() > bound) {
+            playerSprite.translateY(-gravity * timeIncrement);
+            System.out.println(playerSprite.getY());
         } else {
             playerSprite.setY(bound);
             up = 0;
+            temptime = millitime;
         }
     }
 
@@ -159,9 +170,13 @@ public class Main extends ApplicationAdapter {
         batch.begin();
         
         batch.draw(backgroundTexture, -VIEWPORT_WIDTH/2, -VIEWPORT_HEIGHT/2, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-        
-        
+
+        for(Sprite s : platforms1) {
+            s.draw(batch);
+        }
+
         playerSprite.draw(batch);
+        
 
         batch.end();
 
