@@ -6,19 +6,11 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.ScreenUtils;
-import com.badlogic.gdx.utils.viewport.FitViewport;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
@@ -41,6 +33,8 @@ public class Main extends ApplicationAdapter {
     private double temptime = 0;
     private int up = 0;
     private int stage = 1;
+    private int spawnX = 0;
+    private int spawnY = -49;
 
     Sprite playerSprite;
 
@@ -54,12 +48,12 @@ public class Main extends ApplicationAdapter {
         camera.position.set(0, 0, 0);
         camera.update();
 
-        int[] stage1Plats = {-47, -45, 10, 3, -55, -50, 110, 1, 37, -40, 10, 3, 20, -35, 10, 3};
+        int[] stage1Plats = {-47, -47, 10, 5, -55, -53, 110, 4, 37, -40, 10, 5, 20, -35, 10, 5};
 
         batch = new SpriteBatch();
         backgroundTexture = new Texture("background.png");
         characterTexture = new Texture("Whiteboxguy.png");
-        platformTexture = new Texture("testplats.png");
+        platformTexture = new Texture("platformNew.png");
 
         for (int i = 0; i < stage1Plats.length; i += 4) {
             Sprite platSprite = new Sprite(platformTexture);
@@ -68,7 +62,8 @@ public class Main extends ApplicationAdapter {
         }
 
         playerSprite = new Sprite(characterTexture);
-        playerSprite.setSize(5, 5);
+        playerSprite.setSize(5, 4);
+        playerSprite.setPosition(spawnX, spawnY);
     }
 
     @Override
@@ -131,26 +126,7 @@ public class Main extends ApplicationAdapter {
         } else if(xPos < -VIEWPORT_WIDTH/2 - playerSprite.getWidth()) {
             playerSprite.setPosition(VIEWPORT_WIDTH/2, yPos);
         }
-        
-        float maxHeight = -100;
-        int platIndex = 0;
-        int platIncrement = 0;
-        for (Sprite s : platforms1) {
-            if(yPos >= s.getY() + s.getHeight() && xPos > s.getX() - playerSprite.getWidth() && xPos < s.getX() + s.getWidth()) {
-                if (s.getY() + s.getHeight() > maxHeight) {
-                    maxHeight = s.getY() + s.getHeight();
-                    platIndex = platIncrement;
-                }
-            } if (sidecollision(s).equals("right")) {
-                playerSprite.setX(s.getX() + s.getWidth());
-            } else if (sidecollision(s).equals("left")) {
-                playerSprite.setX(s.getX() - playerSprite.getWidth());
-            } else if (undercollision(s) && xPos > s.getX() - playerSprite.getWidth() && xPos < s.getX() + s.getWidth()) {
-                playerSprite.setY(s.getY() - playerSprite.getHeight());
-            }
-            platIncrement++;
-        }
-        gravity(platforms1.get(platIndex).getY() + platforms1.get(platIndex).getHeight());
+        platformcollisisons(platforms1);
     }
 
     private void gravity(float bound) {
@@ -194,6 +170,28 @@ public class Main extends ApplicationAdapter {
         } else {
             return "none";
         }
+    }
+
+    private void platformcollisisons(ArrayList<Sprite> platformsWorld) {
+        float maxHeight = -100;
+        int platIndex = 0;
+        int platIncrement = 0;
+        for (Sprite s : platformsWorld) {
+            if(playerSprite.getY() >= s.getY() + s.getHeight() && playerSprite.getX() > s.getX() - playerSprite.getWidth() && playerSprite.getX() < s.getX() + s.getWidth()) {
+                if (s.getY() + s.getHeight() > maxHeight) {
+                    maxHeight = s.getY() + s.getHeight();
+                    platIndex = platIncrement;
+                }
+            } if (sidecollision(s).equals("right")) {
+                playerSprite.setX(s.getX() + s.getWidth());
+            } else if (sidecollision(s).equals("left")) {
+                playerSprite.setX(s.getX() - playerSprite.getWidth());
+            } else if (undercollision(s) && playerSprite.getX() > s.getX() - playerSprite.getWidth() && playerSprite.getX() < s.getX() + s.getWidth()) {
+                playerSprite.setY(s.getY() - playerSprite.getHeight());
+            }
+            platIncrement++;
+        }
+        gravity(platformsWorld.get(platIndex).getY() + platformsWorld.get(platIndex).getHeight());
     }
 
     private void draw() {
