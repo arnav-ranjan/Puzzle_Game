@@ -34,6 +34,7 @@ public class Main extends ApplicationAdapter {
     private float VIEWPORT_WIDTH = 100f;
     private float VIEWPORT_HEIGHT = 100f;
 
+    private float velocity = 0.3f;
     private double millitime = 0.0;
     private int time = 0;
     private int nextTime = 0;
@@ -53,7 +54,7 @@ public class Main extends ApplicationAdapter {
         camera.position.set(0, 0, 0);
         camera.update();
 
-        int[] stage1Plats = {-47, -45, 10, 3, -50, -50, 100, 1};
+        int[] stage1Plats = {-47, -45, 10, 3, -55, -50, 110, 1, 37, -40, 10, 3, 20, -35, 10, 3};
 
         batch = new SpriteBatch();
         backgroundTexture = new Texture("background.png");
@@ -86,7 +87,7 @@ public class Main extends ApplicationAdapter {
 
     private void input() { // get keyboard inputs
 
-        float speed = 10.0f;
+        float speed = 10.0f; // speed of player
         float delta = Gdx.graphics.getDeltaTime();
 
         if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
@@ -99,7 +100,7 @@ public class Main extends ApplicationAdapter {
 
         } if(Gdx.input.isKeyJustPressed(Keys.UP)) {
             if(up == 0 || up == 1) { // Allows for double jump
-                playerSprite.translateY(0.2f);
+                playerSprite.translateY(velocity);
                 up++;
                 temptime = millitime;
             }
@@ -131,13 +132,25 @@ public class Main extends ApplicationAdapter {
             playerSprite.setPosition(VIEWPORT_WIDTH/2, yPos);
         }
         
-        boolean isinAir = true;
+        float maxHeight = -100;
+        int platIndex = 0;
+        int platIncrement = 0;
         for (Sprite s : platforms1) {
-            if(yPos >= s.getY() + s.getHeight() && xPos > s.getX() - 5 && xPos < s.getX() + s.getWidth() && isinAir) {
-                gravity(s.getY() + s.getHeight());
-                isinAir = false;
+            if(yPos >= s.getY() + s.getHeight() && xPos > s.getX() - playerSprite.getWidth() && xPos < s.getX() + s.getWidth()) {
+                if (s.getY() + s.getHeight() > maxHeight) {
+                    maxHeight = s.getY() + s.getHeight();
+                    platIndex = platIncrement;
+                }
+            } if (sidecollision(s).equals("right")) {
+                playerSprite.setX(s.getX() + s.getWidth());
+            } else if (sidecollision(s).equals("left")) {
+                playerSprite.setX(s.getX() - playerSprite.getWidth());
+            } else if (undercollision(s) && xPos > s.getX() - playerSprite.getWidth() && xPos < s.getX() + s.getWidth()) {
+                playerSprite.setY(s.getY() - playerSprite.getHeight());
             }
+            platIncrement++;
         }
+        gravity(platforms1.get(platIndex).getY() + platforms1.get(platIndex).getHeight());
     }
 
     private void gravity(float bound) {
@@ -146,7 +159,7 @@ public class Main extends ApplicationAdapter {
         float timeIncrement = (float)(millitime - temptime);
 
         if(up > 0) {
-            playerSprite.translateY(0.3f); // upwards velocity value
+            playerSprite.translateY(velocity); // upwards velocity value
         } if(playerSprite.getY() - (gravity * timeIncrement) < bound) {
             playerSprite.setY(bound);
             up = 0;
@@ -158,6 +171,28 @@ public class Main extends ApplicationAdapter {
             playerSprite.setY(bound);
             up = 0;
             temptime = millitime;
+        }
+    }
+
+    private boolean undercollision(Sprite contact) {
+        if (playerSprite.getY() + playerSprite.getHeight() > contact.getY() && playerSprite.getY() + playerSprite.getHeight() - 2*velocity < contact.getY() && playerSprite.getX() > contact.getX() - playerSprite.getWidth() && playerSprite.getX() < contact.getX() + contact.getWidth()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private String sidecollision(Sprite contact) {
+        if(playerSprite.getY() < contact.getY() + contact.getHeight() && playerSprite.getY() + playerSprite.getHeight() > contact.getY()) {
+            if (playerSprite.getX() < contact.getX() + contact.getWidth() && playerSprite.getX() > contact.getX() + contact.getWidth() - 2*velocity) {
+                return "right";
+            } else if (playerSprite.getX() + playerSprite.getWidth() > contact.getX() && playerSprite.getX() + playerSprite.getWidth() < contact.getX() + 2*velocity) {
+                return "left";
+            } else {
+                return "none";
+            }
+        } else {
+            return "none";
         }
     }
 
