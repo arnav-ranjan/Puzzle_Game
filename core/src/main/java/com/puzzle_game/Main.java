@@ -2,6 +2,8 @@ package com.puzzle_game;
 
 import java.util.ArrayList;
 
+import org.w3c.dom.Text;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -18,13 +20,20 @@ public class Main extends ApplicationAdapter {
 
     private OrthographicCamera camera;
 
-    private Texture backgroundTexture;
-    private Texture characterTexture; // TODO fix background
+    private Texture backgroundTexture1;
+    private Texture characterTexture;
     private Texture platformTexture;
-    private ArrayList<Sprite> platforms1 = new ArrayList<>();
+    private Texture spikeTexture;
+    private Texture flagTexture;
+    private Texture flagActivatedTexture;
+    private Texture portalTexture;
+    private Texture coinTexture;
 
-    private float VIEWPORT_WIDTH = 100f;
-    private float VIEWPORT_HEIGHT = 100f;
+    private ArrayList<Sprite> platforms1 = new ArrayList<>();
+    private ArrayList<Sprite> spikes1 = new ArrayList<>();
+    private ArrayList<Sprite> coins1 = new ArrayList<>();
+    private ArrayList<Sprite> flags1 = new ArrayList<>();
+    private ArrayList<Sprite> flagsActivated1 = new ArrayList<>();
 
     private float velocity = 0.3f;
     private double millitime = 0.0;
@@ -33,10 +42,11 @@ public class Main extends ApplicationAdapter {
     private double temptime = 0;
     private int up = 0;
     private int stage = 1;
-    private int spawnX = 0;
-    private int spawnY = -49;
+    private float spawnX = 0;
+    private float spawnY = -48;
 
-    Sprite playerSprite;
+    private Sprite playerSprite;
+    private Sprite portalSprite;
 
     @Override
     public void create() {
@@ -44,22 +54,28 @@ public class Main extends ApplicationAdapter {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
 
-        camera = new OrthographicCamera(VIEWPORT_WIDTH, VIEWPORT_HEIGHT * height/width);
+        camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT * height/width);
         camera.position.set(0, 0, 0);
         camera.update();
 
-        int[] stage1Plats = {-47, -47, 10, 5, -55, -53, 110, 4, 37, -40, 10, 5, 20, -35, 10, 5};
-
         batch = new SpriteBatch();
-        backgroundTexture = new Texture("background.png");
+        backgroundTexture1 = new Texture("background.png");
         characterTexture = new Texture("Whiteboxguy.png");
         platformTexture = new Texture("platformNew.png");
+        spikeTexture = new Texture("spikes.png");
+        flagTexture = new Texture("flag.png");
+        flagActivatedTexture = new Texture("flagActivated.png");
+        portalTexture = new Texture("portal.png");
+        coinTexture = new Texture("coin.png");
 
-        for (int i = 0; i < stage1Plats.length; i += 4) {
-            Sprite platSprite = new Sprite(platformTexture);
-            platSprite.setBounds(stage1Plats[i], stage1Plats[i + 1], stage1Plats[i + 2], stage1Plats[i + 3]);
-            platforms1.add(platSprite);
-        }
+        listRender(Constants.stage1Plats, platformTexture, 10, 5, platforms1);
+        listRender(Constants.stage1Spikes, spikeTexture, 4, 4, spikes1);
+        listRender(Constants.stage1Flags, flagTexture, 3, 7, flags1);
+        listRender(Constants.stage1Flags, flagActivatedTexture, 3, 7, flagsActivated1);
+
+        portalSprite = new Sprite(portalTexture);
+        portalSprite.setSize(10, 10);
+        portalSprite.setPosition(35, 35);
 
         playerSprite = new Sprite(characterTexture);
         playerSprite.setSize(5, 4);
@@ -68,8 +84,9 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
-        camera.viewportWidth = VIEWPORT_WIDTH;
-        camera.viewportHeight = VIEWPORT_HEIGHT;
+        System.out.println(width);
+        camera.viewportWidth = Constants.VIEWPORT_WIDTH;
+        camera.viewportHeight = Constants.VIEWPORT_HEIGHT / height * width;
         camera.update();
     }
 
@@ -82,7 +99,7 @@ public class Main extends ApplicationAdapter {
 
     private void input() { // get keyboard inputs
 
-        float speed = 10.0f; // speed of player
+        float speed = 15.0f; // speed of player
         float delta = Gdx.graphics.getDeltaTime();
 
         if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
@@ -120,13 +137,26 @@ public class Main extends ApplicationAdapter {
             System.out.println(time);
         }
         
-        if(xPos > VIEWPORT_WIDTH/2) {
-            playerSprite.setPosition(-VIEWPORT_WIDTH/2 - playerSprite.getWidth(), yPos);
+        if(xPos > Constants.VIEWPORT_WIDTH/2) {
+            playerSprite.setPosition(-Constants.VIEWPORT_WIDTH/2 - playerSprite.getWidth(), yPos);
 
-        } else if(xPos < -VIEWPORT_WIDTH/2 - playerSprite.getWidth()) {
-            playerSprite.setPosition(VIEWPORT_WIDTH/2, yPos);
+        } else if(xPos < -Constants.VIEWPORT_WIDTH/2 - playerSprite.getWidth()) {
+            playerSprite.setPosition(Constants.VIEWPORT_WIDTH/2, yPos);
         }
+        
         platformcollisisons(platforms1);
+        for (Sprite s : spikes1) {
+            if(isInCollision(s)) {
+                playerSprite.setPosition(spawnX, spawnY);
+            }
+        } if(isInCollision(portalSprite)) {
+            System.out.println("gyaaaatt");
+        } for (Sprite s : flags1) {
+            if(isInCollision(s)) {
+                spawnX = s.getX();
+                spawnY = s.getY();
+            }
+        }
     }
 
     private void gravity(float bound) {
@@ -153,9 +183,17 @@ public class Main extends ApplicationAdapter {
     private boolean undercollision(Sprite contact) {
         if (playerSprite.getY() + playerSprite.getHeight() > contact.getY() && playerSprite.getY() + playerSprite.getHeight() - 2*velocity < contact.getY() && playerSprite.getX() > contact.getX() - playerSprite.getWidth() && playerSprite.getX() < contact.getX() + contact.getWidth()) {
             return true;
-        } else {
-            return false;
         }
+        return false;
+    }
+
+    private boolean isInCollision(Sprite contact) {
+        if(playerSprite.getY() < contact.getY() + contact.getHeight() && playerSprite.getY() + playerSprite.getHeight() > contact.getY()) {
+            if(playerSprite.getX() < contact.getX() + contact.getWidth() && playerSprite.getX() + playerSprite.getWidth() > contact.getX()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String sidecollision(Sprite contact) {
@@ -164,12 +202,9 @@ public class Main extends ApplicationAdapter {
                 return "right";
             } else if (playerSprite.getX() + playerSprite.getWidth() > contact.getX() && playerSprite.getX() + playerSprite.getWidth() < contact.getX() + 2*velocity) {
                 return "left";
-            } else {
-                return "none";
-            }
-        } else {
-            return "none";
+            } 
         }
+        return "none";
     }
 
     private void platformcollisisons(ArrayList<Sprite> platformsWorld) {
@@ -194,6 +229,14 @@ public class Main extends ApplicationAdapter {
         gravity(platformsWorld.get(platIndex).getY() + platformsWorld.get(platIndex).getHeight());
     }
 
+    private void listRender(int[] list, Texture texture, int width, int height, ArrayList<Sprite> newList) {
+        for (int i = 0; i < list.length; i += 2) {
+            Sprite sprite = new Sprite(texture);
+            sprite.setBounds(list[i], list[i + 1], width, height);
+            newList.add(sprite);
+        }
+    }
+
     private void draw() {
 
         ScreenUtils.clear(Color.BLACK);
@@ -202,12 +245,21 @@ public class Main extends ApplicationAdapter {
 
         batch.begin();
         
-        batch.draw(backgroundTexture, -VIEWPORT_WIDTH/2, -VIEWPORT_HEIGHT/2, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
+        batch.draw(backgroundTexture1, -Constants.VIEWPORT_WIDTH/2, -Constants.VIEWPORT_HEIGHT/2, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
         for(Sprite s : platforms1) {
             s.draw(batch);
+        } for(Sprite s : spikes1) {
+            s.draw(batch);
+        } for(int i = 0; i < flags1.size(); i++) {
+            if(spawnX == flags1.get(i).getX() && spawnY == flags1.get(i).getY()) {
+                flagsActivated1.get(i).draw(batch);
+            } else {
+                flags1.get(i).draw(batch);
+            }
         }
 
+        portalSprite.draw(batch);
         playerSprite.draw(batch);
         
 
@@ -218,6 +270,6 @@ public class Main extends ApplicationAdapter {
     @Override
     public void dispose() {
         batch.dispose();
-        backgroundTexture.dispose();
+        backgroundTexture1.dispose();
     }
 }
