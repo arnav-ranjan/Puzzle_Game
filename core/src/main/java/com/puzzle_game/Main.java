@@ -35,13 +35,14 @@ public class Main extends ApplicationAdapter {
     private ArrayList<Sprite> flags1 = new ArrayList<>();
     private ArrayList<Sprite> flagsActivated1 = new ArrayList<>();
 
-    private float velocity = 0.3f;
+    private float upVelocity = 0.3f;     // jump speed
+    private float sideVelocity = 20.0f;  // sideways speed
     private double millitime = 0.0;
     private int time = 0;
     private int nextTime = 0;
     private double temptime = 0;
     private int up = 0;
-    private int stage = 1;
+    private int stage = 1;               // current stage
     private float spawnX = 0;
     private float spawnY = -48;
 
@@ -54,11 +55,14 @@ public class Main extends ApplicationAdapter {
         float width = Gdx.graphics.getWidth();
         float height = Gdx.graphics.getHeight();
 
+        // initialize camera settings
         camera = new OrthographicCamera(Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT * height/width);
         camera.position.set(0, 0, 0);
         camera.update();
 
         batch = new SpriteBatch();
+
+        // initialize textures
         backgroundTexture1 = new Texture("background.png");
         characterTexture = new Texture("Whiteboxguy.png");
         platformTexture = new Texture("platformNew.png");
@@ -84,10 +88,13 @@ public class Main extends ApplicationAdapter {
 
     @Override
     public void resize(int width, int height) {
+
         System.out.println(width);
         camera.viewportWidth = Constants.VIEWPORT_WIDTH;
         camera.viewportHeight = Constants.VIEWPORT_HEIGHT / height * width;
+
         camera.update();
+
     }
 
     @Override
@@ -97,22 +104,23 @@ public class Main extends ApplicationAdapter {
         draw();
     }
 
-    private void input() { // get keyboard inputs
+    // get keyboard inputs
+    private void input() { 
 
-        float speed = 15.0f; // speed of player
+
         float delta = Gdx.graphics.getDeltaTime();
 
         if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
-            playerSprite.translateX(speed * delta);
+            playerSprite.translateX(sideVelocity * delta);
             System.out.println(playerSprite.getX());
 
         } else if(Gdx.input.isKeyPressed(Keys.LEFT)) {
-            playerSprite.translateX(-speed * delta);
+            playerSprite.translateX(-sideVelocity * delta);
             System.out.println(playerSprite.getX());
 
         } if(Gdx.input.isKeyJustPressed(Keys.UP)) {
             if(up == 0 || up == 1) { // Allows for double jump
-                playerSprite.translateY(velocity);
+                playerSprite.translateY(upVelocity);
                 up++;
                 temptime = millitime;
             }
@@ -120,9 +128,7 @@ public class Main extends ApplicationAdapter {
 
     }
 
-    /*
-     * Wraps the sprite around the screen so that it reappears on the screen no matter how far it travels
-     */
+    // controls game logic and behavior
     private void logic() { 
 
         float xPos = playerSprite.getX();
@@ -137,6 +143,7 @@ public class Main extends ApplicationAdapter {
             System.out.println(time);
         }
         
+        // wraps sprite around the screen
         if(xPos > Constants.VIEWPORT_WIDTH/2) {
             playerSprite.setPosition(-Constants.VIEWPORT_WIDTH/2 - playerSprite.getWidth(), yPos);
 
@@ -144,6 +151,7 @@ public class Main extends ApplicationAdapter {
             playerSprite.setPosition(Constants.VIEWPORT_WIDTH/2, yPos);
         }
         
+        // collision detection
         platformcollisisons(platforms1);
         for (Sprite s : spikes1) {
             if(isInCollision(s)) {
@@ -159,13 +167,14 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    // adds gravity to the player
     private void gravity(float bound) {
 
         float gravity = 0.5f;
         float timeIncrement = (float)(millitime - temptime);
 
         if(up > 0) {
-            playerSprite.translateY(velocity); // upwards velocity value
+            playerSprite.translateY(upVelocity); // upwards velocity value
         } if(playerSprite.getY() - (gravity * timeIncrement) < bound) {
             playerSprite.setY(bound);
             up = 0;
@@ -181,7 +190,7 @@ public class Main extends ApplicationAdapter {
     }
 
     private boolean undercollision(Sprite contact) {
-        if (playerSprite.getY() + playerSprite.getHeight() > contact.getY() && playerSprite.getY() + playerSprite.getHeight() - 2*velocity < contact.getY() && playerSprite.getX() > contact.getX() - playerSprite.getWidth() && playerSprite.getX() < contact.getX() + contact.getWidth()) {
+        if (playerSprite.getY() + playerSprite.getHeight() > contact.getY() && playerSprite.getY() + playerSprite.getHeight() - 2*upVelocity < contact.getY() && playerSprite.getX() > contact.getX() - playerSprite.getWidth() && playerSprite.getX() < contact.getX() + contact.getWidth()) {
             return true;
         }
         return false;
@@ -198,9 +207,9 @@ public class Main extends ApplicationAdapter {
 
     private String sidecollision(Sprite contact) {
         if(playerSprite.getY() < contact.getY() + contact.getHeight() && playerSprite.getY() + playerSprite.getHeight() > contact.getY()) {
-            if (playerSprite.getX() < contact.getX() + contact.getWidth() && playerSprite.getX() > contact.getX() + contact.getWidth() - 2*velocity) {
+            if (playerSprite.getX() < contact.getX() + contact.getWidth() && playerSprite.getX() > contact.getX() + contact.getWidth() - 2*upVelocity) {
                 return "right";
-            } else if (playerSprite.getX() + playerSprite.getWidth() > contact.getX() && playerSprite.getX() + playerSprite.getWidth() < contact.getX() + 2*velocity) {
+            } else if (playerSprite.getX() + playerSprite.getWidth() > contact.getX() && playerSprite.getX() + playerSprite.getWidth() < contact.getX() + 2*upVelocity) {
                 return "left";
             } 
         }
