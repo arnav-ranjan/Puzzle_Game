@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.physics.bullet.collision.integer_comparator;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 /** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
@@ -44,6 +45,7 @@ public class Main extends ApplicationAdapter {
     private int stage = 1;
     private float spawnX = 0;
     private float spawnY = -48;
+    private int coins = 0;
 
     private Sprite playerSprite;
     private Sprite portalSprite;
@@ -72,10 +74,11 @@ public class Main extends ApplicationAdapter {
         listRender(Constants.stage1Spikes, spikeTexture, 4, 4, spikes1);
         listRender(Constants.stage1Flags, flagTexture, 3, 7, flags1);
         listRender(Constants.stage1Flags, flagActivatedTexture, 3, 7, flagsActivated1);
+        listRender(Constants.stage1coins, coinTexture, 2, 2, coins1);
 
         portalSprite = new Sprite(portalTexture);
         portalSprite.setSize(10, 10);
-        portalSprite.setPosition(35, 35);
+        portalSprite.setPosition(-2, 2);
 
         playerSprite = new Sprite(characterTexture);
         playerSprite.setSize(5, 4);
@@ -142,20 +145,8 @@ public class Main extends ApplicationAdapter {
 
         } else if(xPos < -Constants.VIEWPORT_WIDTH/2 - playerSprite.getWidth()) {
             playerSprite.setPosition(Constants.VIEWPORT_WIDTH/2, yPos);
-        }
-        
-        platformcollisisons(platforms1);
-        for (Sprite s : spikes1) {
-            if(isInCollision(s)) {
-                playerSprite.setPosition(spawnX, spawnY);
-            }
-        } if(isInCollision(portalSprite)) {
-            System.out.println("gyaaaatt");
-        } for (Sprite s : flags1) {
-            if(isInCollision(s)) {
-                spawnX = s.getX();
-                spawnY = s.getY();
-            }
+        } if (stage == 1) {
+            stageObjects(platforms1, spikes1, flags1, coins1);
         }
     }
 
@@ -237,6 +228,44 @@ public class Main extends ApplicationAdapter {
         }
     }
 
+    private void stageObjects(ArrayList<Sprite> platforms, ArrayList<Sprite> spikes, ArrayList<Sprite> flags, ArrayList<Sprite> coin) {
+        platformcollisisons(platforms);
+        for (Sprite s : spikes) {
+            if(isInCollision(s)) {
+                playerSprite.setPosition(spawnX, spawnY);
+            }
+        } if(isInCollision(portalSprite)) {
+            stage++;
+        } for (Sprite s : flags) {
+            if(isInCollision(s)) {
+                spawnX = s.getX();
+                spawnY = s.getY();
+            }
+        } for (int i = 0; i < coin.size(); i++) {
+            if(isInCollision(coin.get(i))) {
+                coins++;
+                coin.remove(i);
+                i--;
+            }
+        }
+    }
+
+    private void stageDraws (ArrayList<Sprite> platforms, ArrayList<Sprite> spikes, ArrayList<Sprite> flags, ArrayList<Sprite> flagsAct, ArrayList<Sprite> coin) {
+        for(Sprite s : platforms) {
+            s.draw(batch);
+        } for(Sprite s : spikes) {
+            s.draw(batch);
+        } for(int i = 0; i < flags.size(); i++) {
+            if(spawnX == flags.get(i).getX() && spawnY == flags.get(i).getY()) {
+                flagsAct.get(i).draw(batch);
+            } else {
+                flags.get(i).draw(batch);
+            }
+        } for (Sprite s : coin) {
+            s.draw(batch);
+        }
+    }
+
     private void draw() {
 
         ScreenUtils.clear(Color.BLACK);
@@ -247,18 +276,10 @@ public class Main extends ApplicationAdapter {
         
         batch.draw(backgroundTexture1, -Constants.VIEWPORT_WIDTH/2, -Constants.VIEWPORT_HEIGHT/2, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
-        for(Sprite s : platforms1) {
-            s.draw(batch);
-        } for(Sprite s : spikes1) {
-            s.draw(batch);
-        } for(int i = 0; i < flags1.size(); i++) {
-            if(spawnX == flags1.get(i).getX() && spawnY == flags1.get(i).getY()) {
-                flagsActivated1.get(i).draw(batch);
-            } else {
-                flags1.get(i).draw(batch);
-            }
+        if (stage == 1) {
+            stageDraws(platforms1, spikes1, flags1, flagsActivated1, coins1);
         }
-
+        
         portalSprite.draw(batch);
         playerSprite.draw(batch);
         

@@ -33,4 +33,5 @@ public final class Constants {
          -20, -7};
     public static final int[] stage1Spikes = {0, -2, 4, -2, 10, -49};
     public static final int[] stage1Flags = {32, -2, -49, -40};
+    public static final int[] stage1coins = {0, 0, 5, 0, 10, 0};
 }
