@@ -29,7 +29,11 @@ allprojects {
 
 configure(subprojects) {
   apply plugin: 'java-library'
+<<<<<<< HEAD
   sourceCompatibility = 8
+=======
+  sourceCompatibility = 17
+>>>>>>> stage_branch
 
   // From https://lyze.dev/2021/04/29/libGDX-Internal-Assets-List/
   // The article can be helpful when using assets.txt in your project.
@@ -58,7 +62,11 @@ configure(subprojects) {
 
 subprojects {
   version = "$projectVersion"
+<<<<<<< HEAD
   ext.appName = 'Puzzle_game'
+=======
+  ext.appName = 'Puzzle_Game'
+>>>>>>> stage_branch
   repositories {
     mavenCentral()
     maven { url 'https://s01.oss.sonatype.org' }
@@ -70,4 +78,8 @@ subprojects {
   }
 }
 
+<<<<<<< HEAD
 eclipse.project.name = 'Puzzle_game' + '-parent'
+=======
+eclipse.project.name = 'Puzzle_Game' + '-parent'
+>>>>>>> stage_branch

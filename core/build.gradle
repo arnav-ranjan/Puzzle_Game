@@ -2,8 +2,18 @@
 eclipse.project.name = appName + '-core'
 
 dependencies {
+<<<<<<< HEAD
   api "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
   api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+=======
+  api "com.badlogicgames.ashley:ashley:$ashleyVersion"
+  api "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
+  api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
+  api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+  api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
+  api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+>>>>>>> stage_branch
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
 
   if(enableGraalNative == 'true') {

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Puzzle_game
+=======
+# Puzzle_Game
+>>>>>>> stage_branch
 
 A [libGDX](https://libgdx.com/) project generated with [gdx-liftoff](https://github.com/libgdx/gdx-liftoff).
 
