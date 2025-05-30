@@ -2,10 +2,13 @@ package com.puzzle_game;
 
 public final class Constants {
 
+    //viewport settings
     public static final float VIEWPORT_HEIGHT = 100f;
     public static final float VIEWPORT_WIDTH = 100f;
 
-    public static final int[] stage1Plats = {-47, -47,
+    //stage 1 positions
+    public static final int[] stage1Plats = 
+        {-47, -47,
          -55, -53, 
          -45, -53, 
          -35, -53, 
@@ -31,6 +34,7 @@ public final class Constants {
          10, -7,
          0, -7,
          -20, -7};
+
     public static final int[] stage1Spikes = {0, -2, 4, -2, 10, -49};
     public static final int[] stage1Flags = {32, -2, -49, -40};
 }
