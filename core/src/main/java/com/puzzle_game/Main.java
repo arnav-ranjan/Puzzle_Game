@@ -30,18 +30,22 @@ public class Main extends ApplicationAdapter {
     private ArrayList<Sprite> coinsList = new ArrayList<>();
     private ArrayList<Sprite> flagsList = new ArrayList<>();
     private ArrayList<Sprite> flagsActivatedList = new ArrayList<>();
+    private ArrayList<Sprite> speedsList = new ArrayList<>();
 
     private float velocity = 0.3f;
     private double millitime;
     private int time;
     private int nextTime;
     private double temptime;
+    private double speedtime;
     private int up;
     private int stage;
     private boolean cheats = false;
     private int type;
     private float spawnX = 0;
     private float spawnY = -48;
+    private float speed = 15.0f; // speed of player
+    private int speedIndex = -1;
     private int coins;
 
     private Sprite playerSprite;
@@ -67,9 +71,10 @@ public class Main extends ApplicationAdapter {
         // Rendering all of the lists in Constants class that contain coordinates of each object
         listRender(Constants.stage1Plats, Constants.platformTexture, 10, 5, platformsList);
         listRender(Constants.stage1Spikes, Constants.spikeTexture, 4, 4, spikesList);
-        listRender(Constants.stage1Flags, Constants.flagTexture, 3, 7, flagsList);
-        listRender(Constants.stage1Flags, Constants.flagActivatedTexture, 3, 7, flagsActivatedList);
+        listRender(Constants.stage1Flags, Constants.flagTexture, 4, 7, flagsList);
+        listRender(Constants.stage1Flags, Constants.flagActivatedTexture, 4, 7, flagsActivatedList);
         listRender(Constants.stage1coins, Constants.coinTexture, 2, 2, coinsList);
+        listRender(Constants.stage1speeds, Constants.speedTexture, 3, 3, speedsList);
 
         // Renders the portal for next stage
         portalSprite = new Sprite(Constants.portalTexture);
@@ -100,7 +105,6 @@ public class Main extends ApplicationAdapter {
 
     private void input() { // get keyboard inputs
 
-        float speed = 15.0f; // speed of player
         float delta = Gdx.graphics.getDeltaTime();
 
         if(Gdx.input.isKeyPressed(Keys.RIGHT)) {
@@ -139,6 +143,9 @@ public class Main extends ApplicationAdapter {
             } else if(Gdx.input.isKeyJustPressed(Keys.NUM_5)) {
                 System.out.println("You have selected Portals");
                 type = 5;
+            } else if(Gdx.input.isKeyJustPressed(Keys.NUM_6)) {
+                System.out.println("You have selected Speed Orb");
+                type = 6;
             } else if(Gdx.input.isKeyJustPressed(Keys.NUM_0)) {
                 System.out.println("You have selected Player");
                 type = 0;
@@ -253,8 +260,14 @@ public class Main extends ApplicationAdapter {
                 }
             } if (sidecollision(s).equals("right")) {
                 playerSprite.setX(s.getX() + s.getWidth());
+                if(stage == 1) {
+                    up = 1;
+                }
             } else if (sidecollision(s).equals("left")) {
                 playerSprite.setX(s.getX() - playerSprite.getWidth());
+                if(stage == 1) {
+                    up = 1;
+                }
             } else if (undercollision(s) && playerSprite.getX() > s.getX() - playerSprite.getWidth() && playerSprite.getX() < s.getX() + s.getWidth()) {
                 playerSprite.setY(s.getY() - playerSprite.getHeight());
             }
@@ -300,24 +313,40 @@ public class Main extends ApplicationAdapter {
                 i--;
             }
         }
+        for (int i = 0; i < speedsList.size(); i++) {
+            if(isInCollision(speedsList.get(i))) {
+                speedtime = 1;
+                speedIndex = i;
+            }
+        } if (speedtime > 0) {
+            speedtime -= 0.01;
+            speed = 30.0f;
+        } else {
+            speed = 15.0f;
+            speedIndex = -1;
+        }
     }
 
     /*
      * An easy implement in the draw function to minimize repetition of code when drawing different types of objects
      */
-    private void stageDraws (ArrayList<Sprite> platforms, ArrayList<Sprite> spikes, ArrayList<Sprite> flags, ArrayList<Sprite> flagsAct, ArrayList<Sprite> coin) {
-        for(Sprite s : platforms) {
+    private void stageDraws () {
+        for(Sprite s : platformsList) {
             s.draw(batch);
-        } for(Sprite s : spikes) {
+        } for(Sprite s : spikesList) {
             s.draw(batch);
-        } for(int i = 0; i < flags.size(); i++) {
-            if(spawnX == flags.get(i).getX() && spawnY == flags.get(i).getY()) {
-                flagsAct.get(i).draw(batch);
+        } for(int i = 0; i < flagsList.size(); i++) {
+            if(spawnX == flagsList.get(i).getX() && spawnY == flagsList.get(i).getY()) {
+                flagsActivatedList.get(i).draw(batch);
             } else {
-                flags.get(i).draw(batch);
+                flagsList.get(i).draw(batch);
             }
-        } for (Sprite s : coin) {
+        } for (Sprite s : coinsList) {
             s.draw(batch);
+        } for (int i = 0; i < speedsList.size(); i++) {
+            if(i != speedIndex) {
+                speedsList.get(i).draw(batch);
+            }
         }
     }
 
@@ -352,6 +381,11 @@ public class Main extends ApplicationAdapter {
                 flagsActivatedList.add(flagA);
             } else if(type == 5) {
                 portalSprite.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - portalSprite.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - portalSprite.getHeight()/2));
+            } else if(type == 6) {
+                Sprite spee = new Sprite();
+                spee.set(speedsList.get(0));
+                spee.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - spee.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - spee.getHeight()/2));
+                speedsList.add(spee);
             } else if(type == 0) {
                 playerSprite.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - playerSprite.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - playerSprite.getHeight()/2));
                 temptime = millitime;
@@ -419,6 +453,18 @@ public class Main extends ApplicationAdapter {
             } else if(Gdx.input.isKeyJustPressed(Keys.D)) {
                 portalSprite.translateX(1);
             }
+        } else if(type == 6 && speedsList.size() > 1) {
+            if(Gdx.input.isKeyJustPressed(Keys.BACKSPACE)) {
+                speedsList.removeLast();
+            } else if(Gdx.input.isKeyJustPressed(Keys.W)) {
+                speedsList.getLast().translateY(1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.A)) {
+                speedsList.getLast().translateX(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.S)) {
+                speedsList.getLast().translateY(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.D)) {
+                speedsList.getLast().translateX(1);
+            }
         }
         if(Gdx.input.isKeyJustPressed(Keys.ENTER)) {
             System.out.print("public static final int[] stage" + (stage + 1) + "Plats = {");
@@ -441,6 +487,11 @@ public class Main extends ApplicationAdapter {
                 System.out.print((int)s.getX() + ", " + (int)s.getY() + ", ");
             }
             System.out.println("\b\b};");
+            System.out.print("public static final int[] stage" + (stage + 1) + "speeds = {");
+            for(Sprite s : speedsList) {
+                System.out.print((int)s.getX() + ", " + (int)s.getY() + ", ");
+            }
+            System.out.println("\b\b};");
             System.out.println("Portal placed at: (" + (int)portalSprite.getX() + ", " + (int)portalSprite.getY() + ")");
         }
     }
@@ -455,33 +506,36 @@ public class Main extends ApplicationAdapter {
             spawnY = -48;
             playerSprite.setPosition(spawnX, spawnY);
             portalSprite.setPosition(40, 40);
-            listRender(Constants.stage2Plats, Constants.platformTexture, 10, 5, platformsList);
+            listRender(Constants.stage2Plats, Constants.platformTexture2, 10, 5, platformsList);
             listRender(Constants.stage2Spikes, Constants.spikeTexture, 4, 4, spikesList);
-            listRender(Constants.stage2Flags, Constants.flagTexture, 3, 7, flagsList);
-            listRender(Constants.stage2Flags, Constants.flagActivatedTexture, 3, 7, flagsActivatedList);
+            listRender(Constants.stage2Flags, Constants.flagTexture, 4, 7, flagsList);
+            listRender(Constants.stage2Flags, Constants.flagActivatedTexture, 4, 7, flagsActivatedList);
             listRender(Constants.stage2coins, Constants.coinTexture, 2, 2, coinsList);
+            listRender(Constants.stage2speeds, Constants.speedTexture, 3, 3, speedsList);
         } else if (stage == 2) { // creates stage 3 (the night)
             backdropSprite = Constants.backgroundTexture3;
             spawnX = 0;
             spawnY = -48;
             playerSprite.setPosition(spawnX, spawnY);
             portalSprite.setPosition(40, 40);
-            listRender(Constants.stage3Plats, Constants.platformTexture, 10, 5, platformsList);
+            listRender(Constants.stage3Plats, Constants.platformTexture3, 10, 5, platformsList);
             listRender(Constants.stage3Spikes, Constants.spikeTexture, 4, 4, spikesList);
-            listRender(Constants.stage3Flags, Constants.flagTexture, 3, 7, flagsList);
-            listRender(Constants.stage3Flags, Constants.flagActivatedTexture, 3, 7, flagsActivatedList);
+            listRender(Constants.stage3Flags, Constants.flagTexture, 4, 7, flagsList);
+            listRender(Constants.stage3Flags, Constants.flagActivatedTexture, 4, 7, flagsActivatedList);
             listRender(Constants.stage3coins, Constants.coinTexture, 2, 2, coinsList);
+            listRender(Constants.stage3speeds, Constants.speedTexture, 3, 3, speedsList);
         } else if (stage == 3) { // creates stage 4 (the desert)
             backdropSprite = Constants.backgroundTexture4;
             spawnX = 0;
             spawnY = -48;
             playerSprite.setPosition(spawnX, spawnY);
             portalSprite.setPosition(40, 40);
-            listRender(Constants.stage4Plats, Constants.platformTexture, 10, 5, platformsList);
+            listRender(Constants.stage4Plats, Constants.platformTexture4, 10, 5, platformsList);
             listRender(Constants.stage4Spikes, Constants.spikeTexture, 4, 4, spikesList);
-            listRender(Constants.stage4Flags, Constants.flagTexture, 3, 7, flagsList);
-            listRender(Constants.stage4Flags, Constants.flagActivatedTexture, 3, 7, flagsActivatedList);
+            listRender(Constants.stage4Flags, Constants.flagTexture, 4, 7, flagsList);
+            listRender(Constants.stage4Flags, Constants.flagActivatedTexture, 4, 7, flagsActivatedList);
             listRender(Constants.stage4coins, Constants.coinTexture, 2, 2, coinsList);
+            listRender(Constants.stage4speeds, Constants.speedTexture, 3, 3, speedsList);
         }
     }
 
@@ -498,7 +552,7 @@ public class Main extends ApplicationAdapter {
         
         batch.draw(backdropSprite, -Constants.VIEWPORT_WIDTH/2, -Constants.VIEWPORT_HEIGHT/2, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT);
 
-        stageDraws(platformsList, spikesList, flagsList, flagsActivatedList, coinsList);
+        stageDraws();
         
         portalSprite.draw(batch);
         if(cheats) {
