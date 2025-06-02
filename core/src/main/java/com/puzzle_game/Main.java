@@ -74,7 +74,7 @@ public class Main extends ApplicationAdapter {
         // Renders the portal for next stage
         portalSprite = new Sprite(Constants.portalTexture);
         portalSprite.setSize(10, 10);
-        portalSprite.setPosition(-2, 2);
+        portalSprite.setPosition(38, 20);
 
         // Renders the player of the game
         playerSprite = new Sprite(Constants.characterTexture);
@@ -329,49 +329,119 @@ public class Main extends ApplicationAdapter {
             if(type == 1) {
                 Sprite plat = new Sprite();
                 plat.set(platformsList.get(0));
-                plat.setPosition((int)((100 * Gdx.input.getX()/screenX) - 50), (int)(50 - (100 * Gdx.input.getY()/screenY)));
+                plat.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - plat.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - plat.getHeight()/2));
                 platformsList.add(plat);
-                System.out.println("Placed a platform at: (" + (int)((100 * Gdx.input.getX()/screenX) - 50) + ", " + (int)(50 - (100 * Gdx.input.getY()/screenY)) + ")");
             } else if(type == 2) {
                 Sprite spik = new Sprite();
                 spik.set(spikesList.get(0));
-                spik.setPosition((int)((100 * Gdx.input.getX()/screenX) - 50), (int)(50 - (100 * Gdx.input.getY()/screenY)));
+                spik.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - spik.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - spik.getHeight()/2));
                 spikesList.add(spik);
-                System.out.println("Placed a spike at: (" + (int)((100 * Gdx.input.getX()/screenX) - 50) + ", " + (int)(50 - (100 * Gdx.input.getY()/screenY)) + ")");
             } else if(type == 3) {
                 Sprite coin = new Sprite();
                 coin.set(coinsList.get(0));
-                coin.setPosition((int)((100 * Gdx.input.getX()/screenX) - 50), (int)(50 - (100 * Gdx.input.getY()/screenY)));
+                coin.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - coin.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - coin.getHeight()/2));
                 coinsList.add(coin);
-                System.out.println("Placed a coin at: (" + (int)((100 * Gdx.input.getX()/screenX) - 50) + ", " + (int)(50 - (100 * Gdx.input.getY()/screenY)) + ")");
             } else if(type == 4) {
                 Sprite flag = new Sprite();
                 Sprite flagA = new Sprite();
                 flag.set(flagsList.get(0));
                 flagA.set(flagsActivatedList.get(0));
-                flag.setPosition((int)((100 * Gdx.input.getX()/screenX) - 50), (int)(50 - (100 * Gdx.input.getY()/screenY)));
-                flagA.setPosition((int)((100 * Gdx.input.getX()/screenX) - 50), (int)(50 - (100 * Gdx.input.getY()/screenY)));
+                flag.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - flag.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - flag.getHeight()/2));
+                flagA.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - flagA.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - flagA.getHeight()/2));
                 flagsList.add(flag);
                 flagsActivatedList.add(flagA);
-                System.out.println("Placed a flag at: (" + (int)((100 * Gdx.input.getX()/screenX) - 50) + ", " + (int)(50 - (100 * Gdx.input.getY()/screenY)) + ")");
             } else if(type == 5) {
-                portalSprite.setPosition((int)((100 * Gdx.input.getX()/screenX) - 50), (int)(50 - (100 * Gdx.input.getY()/screenY)));
-                System.out.println("Set portal to: (" + (int)((100 * Gdx.input.getX()/screenX) - 50) + ", " + (int)(50 - (100 * Gdx.input.getY()/screenY)) + ")");
+                portalSprite.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - portalSprite.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - portalSprite.getHeight()/2));
             } else if(type == 0) {
-                playerSprite.setPosition((int)((100 * Gdx.input.getX()/screenX) - 50), (int)(50 - (100 * Gdx.input.getY()/screenY)));
+                playerSprite.setPosition((int)(((100 * Gdx.input.getX()/screenX) - 50) - playerSprite.getWidth()/2), (int)((50 - (100 * Gdx.input.getY()/screenY)) - playerSprite.getHeight()/2));
                 temptime = millitime;
             } 
-        } if(Gdx.input.isKeyJustPressed(Keys.BACKSPACE)) {
-            if(type == 1 && platformsList.size() > 1) {
+        } if(type == 1 && platformsList.size() > 13) {
+            if(Gdx.input.isKeyJustPressed(Keys.BACKSPACE)) {
                 platformsList.removeLast();
-            } if(type == 2 && spikesList.size() > 1) {
+            } else if(Gdx.input.isKeyJustPressed(Keys.W)) {
+                platformsList.getLast().translateY(1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.A)) {
+                platformsList.getLast().translateX(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.S)) {
+                platformsList.getLast().translateY(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.D)) {
+                platformsList.getLast().translateX(1);
+            }
+        } else if(type == 2 && spikesList.size() > 1) {
+            if(Gdx.input.isKeyJustPressed(Keys.BACKSPACE)) {
                 spikesList.removeLast();
-            } if(type == 3 && coinsList.size() > 1) {
+            } else if(Gdx.input.isKeyJustPressed(Keys.W)) {
+                spikesList.getLast().translateY(1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.A)) {
+                spikesList.getLast().translateX(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.S)) {
+                spikesList.getLast().translateY(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.D)) {
+                spikesList.getLast().translateX(1);
+            }
+        } else if(type == 3 && coinsList.size() > 1) {
+            if(Gdx.input.isKeyJustPressed(Keys.BACKSPACE)) {
                 coinsList.removeLast();
-            } if(type == 4 && flagsList.size() > 1) {
+            } else if(Gdx.input.isKeyJustPressed(Keys.W)) {
+                coinsList.getLast().translateY(1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.A)) {
+                coinsList.getLast().translateX(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.S)) {
+                coinsList.getLast().translateY(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.D)) {
+                coinsList.getLast().translateX(1);
+            }
+        } else if(type == 4 && flagsList.size() > 1) {
+            if(Gdx.input.isKeyJustPressed(Keys.BACKSPACE)) {
                 flagsList.removeLast();
                 flagsActivatedList.removeLast();
+            } else if(Gdx.input.isKeyJustPressed(Keys.W)) {
+                flagsList.getLast().translateY(1);
+                flagsActivatedList.getLast().translateY(1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.A)) {
+                flagsList.getLast().translateX(-1);
+                flagsActivatedList.getLast().translateX(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.S)) {
+                flagsList.getLast().translateY(-1);
+                flagsActivatedList.getLast().translateY(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.D)) {
+                flagsList.getLast().translateX(1);
+                flagsActivatedList.getLast().translateX(1);
             }
+        } else if(type == 5) {
+            if(Gdx.input.isKeyJustPressed(Keys.W)) {
+                portalSprite.translateY(1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.A)) {
+                portalSprite.translateX(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.S)) {
+                portalSprite.translateY(-1);
+            } else if(Gdx.input.isKeyJustPressed(Keys.D)) {
+                portalSprite.translateX(1);
+            }
+        }
+        if(Gdx.input.isKeyJustPressed(Keys.ENTER)) {
+            System.out.print("public static final int[] stage" + (stage + 1) + "Plats = {");
+            for(Sprite s : platformsList) {
+                System.out.print((int)s.getX() + ", " + (int)s.getY() + ", ");
+            }
+            System.out.println("\b\b};");
+            System.out.print("public static final int[] stage" + (stage + 1) + "Spikes = {");
+            for(Sprite s : spikesList) {
+                System.out.print((int)s.getX() + ", " + (int)s.getY() + ", ");
+            }
+            System.out.println("\b\b};");
+            System.out.print("public static final int[] stage" + (stage + 1) + "Flags = {");
+            for(Sprite s : flagsList) {
+                System.out.print((int)s.getX() + ", " + (int)s.getY() + ", ");
+            }
+            System.out.println("\b\b};");
+            System.out.print("public static final int[] stage" + (stage + 1) + "coins = {");
+            for(Sprite s : coinsList) {
+                System.out.print((int)s.getX() + ", " + (int)s.getY() + ", ");
+            }
+            System.out.println("\b\b};");
+            System.out.println("Portal placed at: (" + (int)portalSprite.getX() + ", " + (int)portalSprite.getY() + ")");
         }
     }
 
