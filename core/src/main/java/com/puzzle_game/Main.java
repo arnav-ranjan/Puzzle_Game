@@ -11,8 +11,11 @@ import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.FreeTypeFontParameter;
 import com.badlogic.gdx.physics.bullet.collision.integer_comparator;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -20,6 +23,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture backdropSprite;
+    private BitmapFont font;
 
     private OrthographicCamera camera;
     private float screenX = 600;
@@ -67,6 +71,11 @@ public class Main extends ApplicationAdapter {
 
         batch = new SpriteBatch();
         backdropSprite = Constants.backgroundTexture1;
+        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.ttf"));
+        FreeTypeFontParameter parameter = new FreeTypeFontParameter();
+        parameter.size = 10;
+        parameter.color = (Color.BLACK);
+        font = generator.generateFont(parameter);
 
         // Rendering all of the lists in Constants class that contain coordinates of each object
         listRender(Constants.stage1Plats, Constants.platformTexture, 10, 5, platformsList);
@@ -348,6 +357,7 @@ public class Main extends ApplicationAdapter {
                 speedsList.get(i).draw(batch);
             }
         }
+        font.draw(batch, "Coins: " + coins, -20, 50);
     }
 
     /*
@@ -517,7 +527,7 @@ public class Main extends ApplicationAdapter {
             spawnX = 0;
             spawnY = -48;
             playerSprite.setPosition(spawnX, spawnY);
-            portalSprite.setPosition(40, 40);
+            portalSprite.setPosition(-50, 30);
             listRender(Constants.stage3Plats, Constants.platformTexture3, 10, 5, platformsList);
             listRender(Constants.stage3Spikes, Constants.spikeTexture, 4, 4, spikesList);
             listRender(Constants.stage3Flags, Constants.flagTexture, 4, 7, flagsList);
