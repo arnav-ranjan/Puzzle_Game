@@ -69,6 +69,7 @@ public class Main extends ApplicationAdapter {
         camera.position.set(0, 0, 0);
         camera.update();
 
+        // Setting up Background and fonts
         batch = new SpriteBatch();
         backdropSprite = Constants.backgroundTexture1;
         FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("font.ttf"));
@@ -155,6 +156,17 @@ public class Main extends ApplicationAdapter {
             } else if(Gdx.input.isKeyJustPressed(Keys.NUM_6)) {
                 System.out.println("You have selected Speed Orb");
                 type = 6;
+            } else if(Gdx.input.isKeyJustPressed(Keys.NUM_7)) {
+                System.out.println("Changed Backdrop");
+                if (backdropSprite.equals(Constants.backgroundTexture1)) {
+                    backdropSprite = Constants.backgroundTexture2;
+                } else if (backdropSprite.equals(Constants.backgroundTexture2)) {
+                    backdropSprite = Constants.backgroundTexture3;
+                } else if (backdropSprite.equals(Constants.backgroundTexture3)) {
+                    backdropSprite = Constants.backgroundTexture4;
+                } else if (backdropSprite.equals(Constants.backgroundTexture4)) {
+                    backdropSprite = Constants.backgroundTexture1;
+                } 
             } else if(Gdx.input.isKeyJustPressed(Keys.NUM_0)) {
                 System.out.println("You have selected Player");
                 type = 0;
@@ -174,10 +186,12 @@ public class Main extends ApplicationAdapter {
         millitime += 0.02; //Increment speed of game
 
         // Function occurs every second when millitime is 0.02
-        if((int)millitime % 2 == 0 && (int)millitime != nextTime)
+        if((int)millitime % 1 == 0 && (int)millitime != nextTime)
         {
             nextTime = (int) millitime;
+            if(stage < 3) {
             time++;
+            }
             // System.out.println(time);  Prints the time
         }
         
@@ -357,7 +371,8 @@ public class Main extends ApplicationAdapter {
                 speedsList.get(i).draw(batch);
             }
         }
-        font.draw(batch, "Coins: " + coins, -20, 50);
+        font.draw(batch, "Time: " + time, -50, 50);
+        font.draw(batch, "Coins: " + coins, 0, 50);
     }
 
     /*
@@ -515,7 +530,7 @@ public class Main extends ApplicationAdapter {
             spawnX = 0;
             spawnY = -48;
             playerSprite.setPosition(spawnX, spawnY);
-            portalSprite.setPosition(40, 40);
+            portalSprite.setPosition(40, 32);
             listRender(Constants.stage2Plats, Constants.platformTexture2, 10, 5, platformsList);
             listRender(Constants.stage2Spikes, Constants.spikeTexture, 4, 4, spikesList);
             listRender(Constants.stage2Flags, Constants.flagTexture, 4, 7, flagsList);
@@ -534,12 +549,12 @@ public class Main extends ApplicationAdapter {
             listRender(Constants.stage3Flags, Constants.flagActivatedTexture, 4, 7, flagsActivatedList);
             listRender(Constants.stage3coins, Constants.coinTexture, 2, 2, coinsList);
             listRender(Constants.stage3speeds, Constants.speedTexture, 3, 3, speedsList);
-        } else if (stage == 3) { // creates stage 4 (the desert)
+        } else  { // creates stage 4 (the desert)
             backdropSprite = Constants.backgroundTexture4;
             spawnX = 0;
             spawnY = -48;
             playerSprite.setPosition(spawnX, spawnY);
-            portalSprite.setPosition(40, 40);
+            portalSprite.setPosition(30, -45);
             listRender(Constants.stage4Plats, Constants.platformTexture4, 10, 5, platformsList);
             listRender(Constants.stage4Spikes, Constants.spikeTexture, 4, 4, spikesList);
             listRender(Constants.stage4Flags, Constants.flagTexture, 4, 7, flagsList);
@@ -571,6 +586,12 @@ public class Main extends ApplicationAdapter {
             playerSprite.setTexture(Constants.characterTexture);
         }
         playerSprite.draw(batch);
+
+        if (stage == 3) {
+            batch.draw(Constants.win, -Constants.VIEWPORT_WIDTH/2, -Constants.VIEWPORT_HEIGHT/4, Constants.VIEWPORT_WIDTH, Constants.VIEWPORT_HEIGHT/2);
+        } else if (stage == 4) {
+            cheats = true;
+        }
 
         batch.end();
     }

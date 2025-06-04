@@ -10,6 +10,7 @@ public final class Constants {
     public static final Texture backgroundTexture2 = new Texture("backdrop2.png");
     public static final Texture backgroundTexture3 = new Texture("backdrop3.png");
     public static final Texture backgroundTexture4 = new Texture("backdrop4.png");
+    public static final Texture win = new Texture("win.png");
     public static final Texture characterTexture = new Texture("Whiteboxguy.png");
     public static final Texture cheaterTexture = new Texture("RedBoxGuy.png");
     public static final Texture platformTexture = new Texture("platformNew.png");
@@ -30,8 +31,8 @@ public final class Constants {
     public static final int[] stage1coins = {100, 100, 32, -38, 24, -28, 14, -28, -32, -10, -20, -1, -12, -1, -16, -1, 7, 26, -43, -32, 41, -20};
     public static final int[] stage1speeds = {100, 100};
 
-    public static final int[] stage2Plats = {-55, -53, -45, -53, -35, -53, -25, -53, -15, -53, -5, -53, 5, -53, 15, -53, 15, -53, 25, -53, 35, -53, 45, -53, 55, -53, -55, -48, -55, -43, -55, -38, -55, -33, -55, -28, -55, -23, -32, -33, -55, -18, -45, -18, -35, -18, 19, -33, 29, -33, 39, -33, 49, -33, 46, -28, 46, -23, 46, -18, 46, -13, 28, -8, 46, 3, 46, 8, 46, 13, -39, 12, -29, 12, -19, 12, -9, 12, -49, 7, -60, 12, -59, 7, -9, 17, -9, 22, -9, 27, -9, 32, 1, 32, 11, 32, 21, 32, 31, 32, 41, 32, 50, 32, -60, 32, 49, -48, 49, -43, 49, -38};
-    public static final int[] stage2Spikes = {100, 100, 46, -8, -43, 12, -47, 12, -51, 12, 45, -48, 41, -48, 37, -48, 33, -48, 29, -48, -57, -13, -57, -10, -57, -6};
+    public static final int[] stage2Plats = {-55, -53, -45, -53, -35, -53, -25, -53, -15, -53, -5, -53, 5, -53, 15, -53, 15, -53, 25, -53, 35, -53, 45, -53, 55, -53, -55, -48, -55, -43, -55, -38, -55, -33, -55, -28, -55, -23, -32, -33, -55, -18, -45, -18, -35, -18, 19, -33, 29, -33, 39, -33, 49, -33, 46, -28, 46, -23, 46, -18, 46, -13, 28, -8, 46, 3, 46, 8, 46, 13, -39, 12, -29, 12, -19, 12, -9, 12, -49, 7, -60, 12, -59, 7, -9, 17, -9, 22, -9, 27, -9, 32, 49, -48, 49, -43, 49, -38, 1, 22, 11, 22, 21, 22, 31, 22, 41, 27};        
+    public static final int[] stage2Spikes = {100, 100, 46, -8, -43, 12, -47, 12, -51, 12, 45, -48, 41, -48, 37, -48, 33, -48, 29, -48, -57, -13, -57, -10, -57, -6, 1, 27, 5, 27, 9, 27, 13, 27, 17, 27, 21, 27, 25, 27, 29, 27, 33, 27, 37, 27}; 
     public static final int[] stage2Flags = {100, 100, 21, -28, -38, 17};
     public static final int[] stage2coins = {100, 100, -37, -40, -37, -24, -2, -31, -5, -31, 1, -31, 29, -1, 32, -1, 35, -1, 47, 19, -28, 34, -32, 34, -24, 34};
     public static final int[] stage2speeds = {100, 100};
